@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "36992144081",
+    "project_id": "ride-34f8c",
+    "storage_bucket": "ride-34f8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36992144081:android:068759b99511ca08ab6bf0",
+        "android_client_info": {
+          "package_name": "com.myapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "36992144081-k5dvdb3pkhh4okeqis6v8kdv75p8ilam.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myapp",
+            "certificate_hash": "c0148054a194dd4d29337a93e747ec062a0a5c88"
+          }
+        },
+        {
+          "client_id": "36992144081-82kg95sf5b8u45kf1p5129b45t9i34mq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2qGNsrkOWi6pP9VZxpeNscAFrxPUnig0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "36992144081-82kg95sf5b8u45kf1p5129b45t9i34mq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
