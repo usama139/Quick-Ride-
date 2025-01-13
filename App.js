@@ -22,13 +22,16 @@ import FavouriteScreen from './screen/Home/FavouriteScreen';
 import OfferScreen from './screen/Home/OfferScreen';
 import SelectTransportScreen from './screen/Home/SelectTransportScreen';
 import RentRequestScreen from './screen/Home/RentRequestScreen';
+import ThankYouScreen from './screen/Home/ThankYouScreen';
+import DriverDetailsScreen from './screen/Home/DriverDetailsScreen';
+import ChatScreen from './screen/Home/ChatScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='HomeScreen' screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Navigator initialRouteName='IntroSlider' screenOptions={{ headerShown: false }}>
+       
         <Stack.Screen name="IntroSlider" component={IntroSlider} />
         <Stack.Screen name="LoginPage" component={LoginPage} />
         <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
@@ -40,7 +43,7 @@ export default function App() {
         <Stack.Screen name="ForgotSetPassword" component={ForgotSetPassword} />
         <Stack.Screen name="ForgotOTPVerification" component={ForgotOTPVerification} />
         <Stack.Screen name="RideSelect" component={RideSelect} />
-        
+        <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="PhoneAuthScreen" component={PhoneAuthScreen} />
         <Stack.Screen name="VerifyOTPScreen" component={VerifyOTPScreen} />
         <Stack.Screen name="NotificationContainer" component={NotificationContainer} />
@@ -50,6 +53,9 @@ export default function App() {
         <Stack.Screen name="OfferScreen" component={OfferScreen} />
         <Stack.Screen name="SelectTransportScreen" component={SelectTransportScreen} />
         <Stack.Screen name="RentRequestScreen" component={RentRequestScreen} />
+        <Stack.Screen name="ThankYouScreen" component={ThankYouScreen} />
+        <Stack.Screen name="DriverDetailsScreen" component={DriverDetailsScreen} />
+        <Stack.Screen name="ChatScreen" component={ChatScreen} />
         {/* Add HomeScreen or other screens as needed */}
       </Stack.Navigator>
     </NavigationContainer>

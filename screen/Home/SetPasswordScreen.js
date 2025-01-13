@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
@@ -25,24 +24,46 @@ const SetPasswordScreen = ({ navigation, route }) => {
     try {
       setIsSubmitting(true);
 
-      // Create a new user with email and password if no user is signed in
-      const email = `${phone}@example.com`; // You can use phone or other data as the email
-      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const email = `${phone}@example.com`;
 
-      // Now save the user's phone number and other details to Firestore
-      await firestore().collection('users').doc(phone).set({
-        phone,
-        password,
-        createdAt: firestore.FieldValue.serverTimestamp(),
-      });
+      // Check if the email already exists
+      const existingUser = await auth().fetchSignInMethodsForEmail(email);
 
-      // Navigate to the next screen (or confirmation screen)
-      Alert.alert('Success', 'Account created successfully!');
-      navigation.navigate('HomeScreen'); // Replace with your actual screen name after password set
+      if (existingUser.length > 0) {
+        // User already exists, update Firestore data
+        await firestore().collection('users').doc(phone).set(
+          {
+            phone,
+            password,
+            updatedAt: firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true } // Merge to avoid overwriting existing data
+        );
 
+        Alert.alert('Success', 'Password updated successfully!');
+        navigation.navigate('HomeScreen'); // Navigate to home or relevant screen
+      } else {
+        // Create a new user
+        const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+
+        // Save the user's data in Firestore
+        await firestore().collection('users').doc(phone).set({
+          phone,
+          password,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        });
+
+        Alert.alert('Success', 'Account created successfully!');
+        navigation.navigate('HomeScreen');
+      }
     } catch (error) {
       console.error('Error setting password:', error);
-      Alert.alert('Error', 'Something went wrong while setting the password.');
+
+      if (error.code === 'auth/email-already-in-use') {
+        Alert.alert('Error', 'This phone number is already registered.');
+      } else {
+        Alert.alert('Error', 'Something went wrong while setting the password.');
+      }
     } finally {
       setIsSubmitting(false);
     }

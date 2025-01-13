@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { getDistance } from 'geolib';
 import NavHeaderComp from '../../src/components/NavHeaderComp';
 
@@ -8,6 +8,8 @@ const RentRequestScreen = ({ route, navigation }) => {
   const [distance, setDistance] = useState(0);
   const [price, setPrice] = useState(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDriverFound, setIsDriverFound] = useState(false);
 
   useEffect(() => {
     if (source && destination) {
@@ -25,124 +27,161 @@ const RentRequestScreen = ({ route, navigation }) => {
     setSelectedPaymentMethod(method);
   };
 
+  const handleConfirmRide = () => {
+    if (selectedPaymentMethod === 'Cash') {
+      setIsLoading(true); // Show loading indicator
+      setTimeout(() => {
+        setIsLoading(false); // Hide loading indicator
+        setIsDriverFound(true); // Show driver found section
+      }, 10000); // 10 seconds
+    } else {
+      Alert.alert('Not Supported', 'Payment method not supported yet.');
+    }
+  };
+
+  const handleDriverConfirmation = () => {
+    navigation.navigate('ThankYouScreen', {
+      driverName: 'Adil', // Pass driver name
+      vehicleNumber: 'MPK-3212', // Optionally pass vehicle number
+      paymentMethod: selectedPaymentMethod, // Pass payment method
+    fare: price, 
+    source: source, // Pass source
+      destination: destination, 
+    }); // Navigate to Thank You screen
+  };
+
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <NavHeaderComp navigation={navigation} />
-        <Text style={styles.header}>Request for Rent</Text>
-
-        <View style={styles.infoContainer}>
-          <Text style={styles.label}>Source</Text>
-          <Text style={styles.value}>
-            {source ? `${source.latitude}, ${source.longitude}` : 'N/A'}
-          </Text>
-          <Text style={styles.label}>Destination</Text>
-          <Text style={styles.value}>
-            {destination ? `${destination.latitude}, ${destination.longitude}` : 'N/A'}
-          </Text>
-          <Text style={styles.distance}>
-            Distance: {(distance / 1000).toFixed(2)} km
-          </Text>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4CAF50" />
+          <Text style={styles.loadingText}>Searching for a driver...</Text>
         </View>
-
-        <View style={styles.transportContainer}>
-          <Text style={styles.label}>{transportType}</Text>
-          <Image
-            source={
-              transportType === 'Bike'
-                ? require('../../assets/bookbike.png')
-                : transportType === 'Car'
-                ? require('../../assets/bookcar.png')
-                : require('../../assets/bookauto.png')
-            }
-            style={styles.transportImage}
-          />
-          <Text style={styles.price}>Price: Rs {price.toFixed(2)}</Text>
-        </View>
-
-        <View style={styles.paymentContainer}>
-          <Text style={styles.label}>Select Payment Method</Text>
+      ) : isDriverFound ? (
+        <View style={styles.driverFoundContainer}>
+          <Text style={styles.driverInfo}>Driver Found!</Text>
+          <Text style={styles.driverInfo}>Driver: Adil</Text>
+          <Text style={styles.driverInfo}>Vehicle: MPK-3212</Text>
           <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              selectedPaymentMethod === 'Cash' && styles.selectedOption,
-            ]}
-            onPress={() => handlePaymentSelection('Cash')}
+            style={styles.confirmButton}
+            onPress={handleDriverConfirmation}
           >
-            <Image
-              source={require('../../assets/cash.jpg')}
-              style={styles.paymentIcon}
-            />
-            <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>Cash</Text>
-              <Text style={styles.paymentSubtitle}>Pay with cash</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              selectedPaymentMethod === 'EasyPaisa' && styles.selectedOption,
-            ]}
-            onPress={() => handlePaymentSelection('EasyPaisa')}
-          >
-            <Image
-              source={require('../../assets/easypaisa.png')}
-              style={styles.paymentIcon}
-            />
-            <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>EasyPaisa</Text>
-              <Text style={styles.paymentSubtitle}>1234 **** **** 5678</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              selectedPaymentMethod === 'JazzCash' && styles.selectedOption,
-            ]}
-            onPress={() => handlePaymentSelection('JazzCash')}
-          >
-            <Image
-              source={require('../../assets/jazz.png')}
-              style={styles.paymentIcon}
-            />
-            <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>JazzCash</Text>
-              <Text style={styles.paymentSubtitle}>user@jazzcash.com</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              selectedPaymentMethod === 'Bank Card' && styles.selectedOption,
-            ]}
-            onPress={() => handlePaymentSelection('Bank Card')}
-          >
-            <Image
-              source={require('../../assets/bank.jpg')}
-              style={styles.paymentIcon}
-            />
-            <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>Visa</Text>
-              <Text style={styles.paymentSubtitle}>1234 **** **** 5678</Text>
-            </View>
+            <Text style={styles.confirmText}>Confirm Ride</Text>
           </TouchableOpacity>
         </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <NavHeaderComp navigation={navigation} />
+          <Text style={styles.header}>Request for Rent</Text>
 
-        <TouchableOpacity
-          style={styles.confirmButton}
-          onPress={() =>
-            Alert.alert(
-              'Ride Confirmed',
-              `You chose ${transportType} with payment method: ${selectedPaymentMethod}`
-            )
-          }
-        >
-          <Text style={styles.confirmText}>Confirm Ride</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Source</Text>
+            <Text style={styles.value}>
+              {source ? `${source.latitude}, ${source.longitude}` : 'N/A'}
+            </Text>
+            <Text style={styles.label}>Destination</Text>
+            <Text style={styles.value}>
+              {destination ? `${destination.latitude}, ${destination.longitude}` : 'N/A'}
+            </Text>
+            <Text style={styles.distance}>
+              Distance: {(distance / 1000).toFixed(2)} km
+            </Text>
+          </View>
+
+          <View style={styles.transportContainer}>
+            <Text style={styles.label}>{transportType}</Text>
+            <Image
+              source={
+                transportType === 'Bike'
+                  ? require('../../assets/bookbike.png')
+                  : transportType === 'Car'
+                  ? require('../../assets/bookcar.png')
+                  : require('../../assets/bookauto.png')
+              }
+              style={styles.transportImage}
+            />
+            <Text style={styles.price}>Price: Rs {price.toFixed(2)}</Text>
+          </View>
+
+          <View style={styles.paymentContainer}>
+            <Text style={styles.label}>Select Payment Method</Text>
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                selectedPaymentMethod === 'Cash' && styles.selectedOption,
+              ]}
+              onPress={() => handlePaymentSelection('Cash')}
+            >
+              <Image
+                source={require('../../assets/cash.jpg')}
+                style={styles.paymentIcon}
+              />
+              <View style={styles.paymentDetails}>
+                <Text style={styles.paymentTitle}>Cash</Text>
+                <Text style={styles.paymentSubtitle}>Pay with cash</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                selectedPaymentMethod === 'EasyPaisa' && styles.selectedOption,
+              ]}
+              onPress={() => handlePaymentSelection('EasyPaisa')}
+            >
+              <Image
+                source={require('../../assets/easypaisa.png')}
+                style={styles.paymentIcon}
+              />
+              <View style={styles.paymentDetails}>
+                <Text style={styles.paymentTitle}>EasyPaisa</Text>
+                <Text style={styles.paymentSubtitle}>1234 **** **** 5678</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                selectedPaymentMethod === 'JazzCash' && styles.selectedOption,
+              ]}
+              onPress={() => handlePaymentSelection('JazzCash')}
+            >
+              <Image
+                source={require('../../assets/jazz.png')}
+                style={styles.paymentIcon}
+              />
+              <View style={styles.paymentDetails}>
+                <Text style={styles.paymentTitle}>JazzCash</Text>
+                <Text style={styles.paymentSubtitle}>user@jazzcash.com</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.paymentOption,
+                selectedPaymentMethod === 'Bank Card' && styles.selectedOption,
+              ]}
+              onPress={() => handlePaymentSelection('Bank Card')}
+            >
+              <Image
+                source={require('../../assets/bank.jpg')}
+                style={styles.paymentIcon}
+              />
+              <View style={styles.paymentDetails}>
+                <Text style={styles.paymentTitle}>Visa</Text>
+                <Text style={styles.paymentSubtitle}>1234 **** **** 5678</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={handleConfirmRide}
+          >
+            <Text style={styles.confirmText}>Confirm Ride</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -151,6 +190,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 18,
+    color: '#333',
+    marginTop: 10,
+  },
+  driverFoundContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  driverInfo: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 10,
   },
   scrollContainer: {
     padding: 20,
